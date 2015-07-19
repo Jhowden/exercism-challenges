@@ -1,44 +1,29 @@
 class Bob
-  YELLING = /[^a-z]{0}[A-Z]+[^a-z]{0}!$/
-  YELLING_NO_EXCLAMATION = /[A-Z]+[^(\.|\?|!)]$/
-  SPECIAL_CHARACTERS = /(%|\^|\*|@|#|\$|\()+/
-  FORCEFUL_QUESTION = /[^a-z][A-Z]+[^\d?]\?$/
-
-  NUMERIC_QUESTION = /\d+.*\?$/
-  QUESTION = /[^A-Z]\?$/
-  NUMBERS_ONLY_QUESTION = /\d+\?$/
-  PRATTLING_ON = /!.+\..+\?/
+  QUESTION = /\?$/
+  END_PUNCTUATION = /(\.|\?|!)$/
 
 	def hey( phrase )
     normalized = normalize_phrase( phrase )
-    return "Fine. Be that way!" if normalized.empty?
-    return "Woah, chill out!" if defuse_yelling? normalized
-    return "Sure." if laidback? normalized
-    return "Whatever."
-    # case normalized
-    # when /[^A-Z]!$/
-    #   "Whatever."
-    # when /[A-Z]{2,}[a-z]+[A-Z]{2,}/
-    #   "Whatever."
-    # when /\|\|/
-    #   "Whatever."
-    # when /\d+/
-    #   "Whatever."
-    # else 
-    #   "Whatever."
-    # end
+
+    if normalized.empty?
+      "Fine. Be that way!"
+    elsif defuse_yelling? normalized
+      "Woah, chill out!"
+    elsif answering_question? normalized
+      "Sure."
+    else
+      "Whatever."
+    end
   end
 
-  def laidback? phrase
-    [NUMERIC_QUESTION, QUESTION, NUMBERS_ONLY_QUESTION, PRATTLING_ON].any? do |regex|
-      phrase.match regex
-    end
+  def answering_question? phrase
+    phrase.match( QUESTION )
   end
 
   def defuse_yelling? phrase
-    [YELLING, YELLING_NO_EXCLAMATION, SPECIAL_CHARACTERS, FORCEFUL_QUESTION].any? do |regex|
-      phrase.match regex
-    end
+    delete_numbers_phrase = phrase.gsub( /\d/, "" ).
+      gsub( END_PUNCTUATION, "" )
+    delete_numbers_phrase == delete_numbers_phrase.upcase && !delete_numbers_phrase.empty?
   end
 
   def normalize_phrase( phrase )
